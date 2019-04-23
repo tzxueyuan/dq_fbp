@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd 
+   	 ">
+ <!-- 配置数据库连接池（c3p0） -->
+	<bean id="mysql_fnoa_ds"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<!-- 基本信息 -->
+		<property name="driverClass">
+			<value>com.mysql.jdbc.Driver</value>
+		</property>
+		<property name="jdbcUrl">
+			<value>jdbc:mysql://148.70.73.7:3306/mysql</value><!-- ?useUnicode=true&amp;characterEncoding=UTF-8 -->
+		</property>
+		<property name="user">
+			<value>root</value>
+		</property>
+		<property name="password">
+			<value>root123</value>
+		</property>
+		<!-- 其他配置 -->
+		<!--连接池中保留的最小连接数。Default: 3 -->
+		<property name="minPoolSize" value="3"></property>
+		<!--连接池中保留的最大连接数。Default: 15 -->
+		<property name="maxPoolSize" value="30"></property>
+		<!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3 -->
+		<property name="acquireIncrement" value="5"></property>
+		<!-- 控制数据源内加载的PreparedStatements数量。如果maxStatements与maxStatementsPerConnection均为0，则缓存被关闭。Default: 
+			0 -->
+		<property name="maxStatements" value="0"></property>
+		<!--最大空闲时间,1800秒内未使用则连接被丢弃。若为0则永不丢弃。Default: 0 -->
+		<property name="maxIdleTime" value="1800"></property>
+		<property name="idleConnectionTestPeriod" value="120"></property>
+		<property name="acquireRetryAttempts" value="30"></property>
+	</bean>
+	<bean id="sqlSessionFactoryMysqlFnoa"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="mysql_fnoa_ds" />
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.fn.pts.mysql.mapper" />
+		<property name="sqlSessionFactory"
+			ref="sqlSessionFactoryMysqlFnoa"></property>
+	</bean>
+	<bean id="mysqlFnoaTxManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="mysql_fnoa_ds" />
+	</bean>
+
+	<tx:annotation-driven
+		transaction-manager="mysqlFnoaTxManager" />
+</beans>
